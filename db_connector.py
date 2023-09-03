@@ -3,6 +3,7 @@ import os
 import time
 from dotenv import load_dotenv
 from typing import Optional
+import json
 
 # Database
 import psycopg2
@@ -16,6 +17,8 @@ import pandas as pd
 
 import bcrypt
 from email_validator import validate_email, EmailNotValidError
+from categories import category_subcategory_dict
+from words import words
 
 
 load_dotenv()
@@ -56,23 +59,15 @@ class AWS_POSTGRE:
         create_categories_table = """
             CREATE TABLE IF NOT EXISTS Categories (
                 CategoryID serial PRIMARY KEY,
-                CategoryName VARCHAR(255) NOT NULL
-            );
-        """
-
-        create_subcategories_table = """
-            CREATE TABLE IF NOT EXISTS Subcategories (
-                SubcategoryID serial PRIMARY KEY,
-                SubcategoryName VARCHAR(255) NOT NULL,
-                CategoryID INT REFERENCES Categories(CategoryID)
+                CategoryName VARCHAR(255) UNIQUE NOT NULL
             );
         """
         
         create_words_table = """
             CREATE TABLE IF NOT EXISTS Words (
                 WordID serial PRIMARY KEY,
-                WordName VARCHAR(255) NOT NULL,
-                SubcategoryID INT REFERENCES Subcategories(SubcategoryID),     
+                WordName VARCHAR(255) UNIQUE NOT NULL,
+                CategoryID INT REFERENCES Categories(CategoryID),     
                 BoxNumber INT DEFAULT 1,           
                 SuccessfulCompletions INT DEFAULT 0,
                 NextReviewDate DATE DEFAULT current_date,
@@ -84,7 +79,6 @@ class AWS_POSTGRE:
         create_tables = [
             create_users_table,
             create_categories_table,
-            create_subcategories_table,
             create_words_table
             ]
         
@@ -123,16 +117,78 @@ class AWS_POSTGRE:
             self.conn.rollback()
     
     def user_login(self, userid, email, password):
-        self.cursor.execute("SELECT Password FROM Users WHERE Username = %s and Email = %s", (userid, email))
+        self.cursor.execute("SELECT UserID, Password FROM Users WHERE Username = %s and Email = %s", (userid, email))
         result = self.cursor.fetchone()
         
         if result:
-            stored_hashed_password = result[0].encode('utf-8')  # Get the stored hashed password from the query result
-
+            stored_user_id = result[0] 
+            stored_hashed_password = result[1].encode('utf-8')  
+            
             # Verify the provided password by hashing it with the stored salt and comparing to the stored hash
             if bcrypt.checkpw(password.encode('utf-8'), stored_hashed_password):
                 print("Login successful")
+                return stored_user_id 
             else:
                 print("Login failed: Incorrect password")
+                return None
         else:
             print("Login failed: Username not found")
+            return None
+    
+    def insert_category(self, category_name):
+        def category_exists(category_name):
+            self.cursor.execute("SELECT CategoryName FROM Categories WHERE CategoryName = %s", (category_name,))
+            return self.cursor.fetchone() is not None
+
+        try:
+            # Iterate through the dictionary
+            if not category_exists(category_name):
+                                
+                # Insert the category into the Categories table
+                self.cursor.execute("INSERT INTO Categories (CategoryName) VALUES (%s) RETURNING CategoryID", (category_name,))
+                category_id = self.cursor.fetchone()[0]  # Get the inserted CategoryID
+                
+                # Commit the transaction
+                self.conn.commit()
+
+        except Exception as e:
+            self.conn.rollback()  # Rollback in case of an error
+            print(f"Error: {e}")
+            
+    def insert_words(self, ai, user_id):
+        def word_exists(word_name):
+            self.cursor.execute("SELECT WordName FROM Words WHERE WordName = %s", (word_name,))
+            return self.cursor.fetchone() is not None   
+        
+        def extract_category(word):
+            category = ai.get_category(word)
+            return category
+        
+        def get_category_id(category):
+            self.cursor.execute("SELECT CategoryID FROM Categories WHERE CategoryName = %s", (category,))
+            category_id = self.cursor.fetchone()
+            if category_id:
+                return category_id[0]
+        
+        try:
+            corrected_words = ai.spelling_corrector(words)
+            
+            for word in corrected_words:                                                
+                # Check if the word already exists
+                if not word_exists(word):                                        
+                    category = extract_category(word)
+                    self.insert_category(category)
+                    category_id = get_category_id(category)
+                    self.cursor.execute(
+                        "INSERT INTO Words (WordName, CategoryID, UserID) VALUES (%s, %s, %s)",
+                        (word, category_id, user_id)  # Replace subcategory_id and user_id with appropriate values
+                    )                    
+                    print(f"Inserted word {word} of category {category}")
+
+            # Commit the transaction
+            self.conn.commit()
+            print("Words inserted successfully")
+
+        except Exception as e:
+            self.conn.rollback()  # Rollback in case of an error
+            print(f"Error: {e}")

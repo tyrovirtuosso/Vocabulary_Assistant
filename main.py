@@ -1,17 +1,20 @@
 import os
-import openai
 
-from utils import spelling_corrector, get_category_and_subcategory, get_question, check_answer, get_meaning
 from db_connector import AWS_POSTGRE
+from openai_api import OpenAI_API
+
 from dotenv import load_dotenv
 load_dotenv()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
 db = AWS_POSTGRE()
+ai = OpenAI_API()
 
-db.create_user('sj', "shanejms2@gmail.com", 'shane100', 20)
-db.user_login('sj', 'shanejms2@gmail.com', 'shane100')
-# words = spelling_corrector(openai)
-# get_category_and_subcategory(openai, words)
+username = os.getenv("username")
+email = os.getenv("email")
+password = os.getenv("password")
 
-get_meaning(openai)
+db.create_user(username, email, password, 20)
+user_id = db.user_login(username, email, password)
+
+
+db.insert_words(ai, user_id)
