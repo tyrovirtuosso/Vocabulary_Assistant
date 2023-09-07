@@ -163,3 +163,4 @@ cython_debug/
 # files specfic to project
 words.py
 categories.py
+.DS_Store
