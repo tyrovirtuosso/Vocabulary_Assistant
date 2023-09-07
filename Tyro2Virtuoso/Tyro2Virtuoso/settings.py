@@ -1,4 +1,8 @@
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,11 +58,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "Tyro2Virtuoso.wsgi.application"
 
-
+'''
+# Default Database
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+'''
+# Connecting to Custom Serverless Cloud PostgreSQL DB
+HOST=os.environ.get('AWS_POSTGRE_HOST')
+USER=os.environ.get('AWS_POSTGRE_USERNAME')
+PASSWORD=os.environ.get('AWS_POSTGRE_PASSWORD')
+PORT=int(os.environ.get('AWS_POSTGRE_PORT'))
+DATABASE=os.environ.get('AWS_POSTGRE_DATABASE')
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': DATABASE,
+        'USER': USER,
+        'PASSWORD': PASSWORD,
+        'HOST': HOST,
+        'PORT': PORT,
     }
 }
 
