@@ -1,2 +1,13 @@
 categorize the words
 only 10 words possible to learn at once. Only after mastery new words are added for learning
+
+
+# Install tailwindcss using node package manager
+npm install -D tailwindcss
+npx tailwind 
+npx tailwindcss init   
+
+npm run dev
+npm i -D daisyui@latest
+npm install -D @tailwindcss/typography
+npm install -D @tailwindcss/forms

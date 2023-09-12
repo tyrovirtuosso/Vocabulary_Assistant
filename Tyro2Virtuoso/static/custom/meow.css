@@ -1,0 +1,35 @@
+@keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px) rotate(2deg);
+    }
+    50% {
+      transform: translateX(4px) rotate(-2deg);
+    }
+    75% {
+      transform: translateX(-2px) rotate(1deg);
+    }
+    100% {
+      transform: translateX(2px) rotate(-1deg);
+    }
+  }
+  
+.hover\:animate-shake:hover {
+animation: shake 0.5s ease-in-out infinite;
+}
+
+.icon-container:hover .meow-text {
+    display: block;
+    animation: appear 1s ease-in-out;
+  }
+
+  @keyframes appear {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }

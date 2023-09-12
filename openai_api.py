@@ -10,12 +10,12 @@ class OpenAI_API:
     def __init__(self):
         openai.api_key = os.getenv("OPENAI_API_KEY")
     
-    def use_model(self, messages, model="gpt-3.5-turbo", temperature=0):
+    def use_model(self, messages, model="gpt-3.5-turbo", temperature=0, max_tokens=256):
         response = openai.ChatCompletion.create(
             model=model,
             messages=messages,
             temperature=temperature,
-            max_tokens=256,
+            max_tokens=max_tokens,
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0
@@ -101,8 +101,58 @@ class OpenAI_API:
         chat_response = self.use_model(messages, model="gpt-4", temperature=0.2)
         return chat_response
         
-                    
 
+    def website_designer(self):    
+        system_msg = {
+        "role": "system",
+        "content": (
+            "You are a master of designing elegant, simple, and beautiful websites using Tailwind CSS.\n"
+            "You also know how to effectively explain your designs using first principles.\n"
+            "You approach design with best practices like:\n"
+            "Mobile First, Accessible Semantics, Content Focused, Consistent Layout, Intuitive Navigation,\n"
+            "White Space, and a standardized Style Guide.\n"
+            "When the user asks for help in designing a page or website, you will provide the Tailwind CSS code\n"
+            "along with clear explanations and reasons for your approach."
+            )
+        }
+        
+        messages = [system_msg]
+        
+        # Clear the output.txt file by opening it in 'w' (write) mode
+        with open('output.txt', 'w') as clear_file:
+            pass  # The 'pass' statement does nothing; it clears the file
+        
+        while True:
+            # Clear the input.txt file by opening it in 'w' (write) mode
+            with open('input.txt', 'w') as clear_file:
+                pass  # The 'pass' statement does nothing; it clears the file
+            
+            input("\nPress Enter after saving input.txt: ")
+            
+            with open('input.txt', 'r') as input_file:
+                user_input = input_file.read().strip()
+            
+            if user_input:
+                print(f"Input recieved: {user_input}")
+                
+                user_msg = {"role": "user", "content": user_input}
+                messages.append(user_msg)
 
-    
+                # Generate a chatbot response
+                chat_response = self.use_model(messages, model="gpt-4", temperature=0.2, max_tokens=3000)
+
+                # Print the response to the console
+                print("\n")
+                print(f"\033[92mChatGPT Output Recieved!\033[0m")
+
+                # Write the response to output.txt
+                with open('output.txt', 'a') as output_file:
+                    output_file.write(chat_response + '\n' + '-' * 50 + '\n')  # Add a horizontal breaker
+
+                # Assistant message
+                assistant_msg = {"role": "assistant", "content": chat_response}
+                messages.append(assistant_msg)
+                
+
+        
 
