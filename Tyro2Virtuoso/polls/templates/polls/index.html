@@ -1,0 +1,20 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'polls/style.css' %}">
+
+{% if latest_question_list %}
+    <ul>
+    {% for question in latest_question_list %}
+        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+
+        {% comment %} 
+        Longer Version:1 (doesnt use url tag)
+        <li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li> 
+        Longer Version:2 (uses url tag, but doesnt use appname:)
+        <li><a href="{% url 'detail' question.id %}">{{ question.question_text }}</a></li>
+
+        {% endcomment %}
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}

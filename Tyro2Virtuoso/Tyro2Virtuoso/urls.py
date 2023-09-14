@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
 
-import allauth.account.urls
 urlpatterns = [
     path("admin/", admin.site.urls),
     
@@ -9,7 +8,11 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     path('accounts/', include('allauth.socialaccount.urls')),
     
-    path("", include("authenticationApp.urls")),
+    # Third Party app Urls
+    path("__debug__/", include("debug_toolbar.urls")),
     
+    # Custom App Urls
+    path("", include("usersApp.urls")),
+    path("polls/", include("polls.urls")),
     
 ]

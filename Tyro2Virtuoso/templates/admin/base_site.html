@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+
+{% comment %} 
+We use this approach to teach you how to override templates. 
+In an actual project, you would probably use the django.contrib.admin.AdminSite.site_header attribute
+to more easily make this particular customization.
+{% endcomment %}
+
+{% comment %} 
+Original
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1> 
+{% endcomment %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Meow Admin</a></h1>
+
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

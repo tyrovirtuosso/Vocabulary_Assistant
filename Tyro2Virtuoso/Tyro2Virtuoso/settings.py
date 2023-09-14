@@ -48,12 +48,15 @@ INSTALLED_APPS = [
     # "allauth.socialaccount.providers.facebook", 
     # "allauth.socialaccount.providers.instagram",
     # "allauth.socialaccount.providers.telegram",
-    # "allauth.socialaccount.providers.twitter",
+    # "allauth.socialaccount.providers.twitter",        
     
     
     # My Apps
-    "learningapp",
-    "authenticationApp",
+    "usersApp.apps.UsersappConfig",
+    "polls",
+    
+    # Third Party Apps 
+    "debug_toolbar",
     
 ]
 
@@ -65,6 +68,9 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'account_login'
 
 MIDDLEWARE = [
+    # Third Party URL
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -73,8 +79,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     
+    
+    
     # Add the allauth middleware:
     "allauth.account.middleware.AccountMiddleware",
+    
+    
 ]
 
 ROOT_URLCONF = "Tyro2Virtuoso.urls"
@@ -82,7 +92,7 @@ ROOT_URLCONF = "Tyro2Virtuoso.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [ BASE_DIR / "templates" ], # custom
+        "DIRS": [ BASE_DIR / "templates" ], # DIRS is a list of filesystem directories to check when loading Django templates; it’s a search path.
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -176,14 +186,13 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
+USE_TZ = True
 
 USE_I18N = True
 
-USE_TZ = True
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # The below "BASE_DIR / "static" " uses python3.4's pathlib for defining filesystem paths
@@ -202,3 +211,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Email File Based Test
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = BASE_DIR / 'emails'
+
+# The Debug Toolbar is shown only if your IP address is listed in Django’s INTERNAL_IPS setting.
+# This means that for local development, you must add "127.0.0.1" to INTERNAL_IPS
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]

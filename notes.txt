@@ -11,3 +11,6 @@ npm run dev
 npm i -D daisyui@latest
 npm install -D @tailwindcss/typography
 npm install -D @tailwindcss/forms
+
+# To get queries executed by django
+python manage.py sqlmigrate polls 0001 
